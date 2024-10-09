@@ -6,7 +6,9 @@ import pandas as pd
 
 #Sample character ID 2277896
 
+
 api_url = "https://ffxivcollect.com/api/"
+xivapi_url = "https://xivapi.com/"
 
 category_list = [
     'mounts', 'minions', 'character info'
@@ -20,11 +22,16 @@ print('''
       Below is a catagory list of collectables from FFXIV
       ''')
 print(cat_df)
+print('')
 cat_input = int(input('Go ahead and input the number associated with the category you\'d like to see more about: '))
 cat_pick = cat_df.loc[cat_input, 'Category']
 print(f'\nYou have selected {cat_pick}\n')
-
-cat_url = api_url + cat_pick
+character_id = '2277896'
+if cat_input == 3:
+    character_id = input('Go ahead and put in your character lodestone ID: ')
+    cat_url = api_url + 'characters/' + character_id
+else:
+    cat_url = api_url + cat_pick
 
 #This code is going to be used to pull all items from that category
 response = requests.get(f'{cat_url}')
@@ -46,8 +53,32 @@ def search_item(type):
 
 #If character info is selected
 if cat_input == 3:
-    print('Character stuff')
-
+    #for key in data.keys():
+        #print(key)
+    # character_df = pd.json_normalize(data)
+    name = data['name']
+    server = data['server']
+    print(f'\nThis characters\'s name is {name}, from the {server} server.\n')
+    character_choice = input(f'Would you like to see more about {name}\'s achievements, mounts, or minions? ')
+    print('')
+    if character_choice == 'achievements':
+        achievements = data['achievements']
+        ranks = data['rankings']
+        points_total = achievements['ranked_points']
+        server_ranked = ranks['achievements']['server']
+        print(f'{name} currently has {points_total} achievement points and server rank of {server_ranked}.')
+    elif character_choice == 'mounts':
+        mounts = data['mounts']
+        ranks = data['rankings']
+        points_total = mounts['count']
+        server_ranked = ranks['mounts']['server']
+        print(f'{name} currently has {points_total} mounts and server rank of {server_ranked}.')
+    elif character_choice == 'minions':
+        mounts = data['minions']
+        ranks = data['rankings']
+        points_total = mounts['count']
+        server_ranked = ranks['minions']['server']
+        print(f'{name} currently has {points_total} minions and server rank of {server_ranked}.')
 else:
     type_list=[]
     for result in data['results']:
